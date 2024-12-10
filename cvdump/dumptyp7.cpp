@@ -14,6 +14,7 @@
 #define CC_BIGINT 1
 #endif
 
+ BYTE        RecBuf[16384];
 
 typedef struct TYPNAME
 {
@@ -22,7 +23,7 @@ typedef struct TYPNAME
 } TYPNAME;
 
 // Used to relate typeind to constant name
-#define MAKE_TYPNAME(typ)  { typ, L#typ }
+#define MAKE_TYPNAME(typ)  { typ, L ## #typ }
 
 
 // A lookup table is used because speed is not important but ease

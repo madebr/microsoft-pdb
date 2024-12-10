@@ -10,18 +10,18 @@
 #include <ctype.h>
 
 #if 0
-A name table is a two-way mapping from string to name index and back.
-Name indices (NIs) are intended to be small positive integers.
-
-This implementation uses a pool of names, and NIs are actually the offsets
-of each name in the pool.
-
-Strings are mapped into name indices using a closed hash table of NIs.
-To find a string, we hash it and probe into the table, and compare the
-string against each successive ni's name until we hit or find an empty
-hash table entry.
-
-Acknowledgements: RicoM and RichardS made great suggestions.
+// A name table is a two-way mapping from string to name index and back.
+// Name indices (NIs) are intended to be small positive integers.
+//
+// This implementation uses a pool of names, and NIs are actually the offsets
+// of each name in the pool.
+//
+// Strings are mapped into name indices using a closed hash table of NIs.
+// To find a string, we hash it and probe into the table, and compare the
+// string against each successive ni's name until we hit or find an empty
+// hash table entry.
+//
+// Acknowledgements: RicoM and RichardS made great suggestions.
 #endif
 class NMT {                 // name table
 private:
@@ -182,7 +182,7 @@ private:
         vhdr.ulHdr = ULONG(verHdr);
 
         BYTE nul = 0;
-        if (!buf.Append(&nul, sizeof nul))
+        if (!buf.Append(&nul, sizeof(nul)))
             return FALSE;
         if (!mphashni.setSize(1))
             return FALSE;
@@ -203,7 +203,7 @@ private:
         traceOnly(CB cbPreHash = pbuf->Size());
         if (!mphashni.save(pbuf))
             return FALSE;
-        else if (!pbuf->Append((PB)&cni, sizeof cni))
+        else if (!pbuf->Append((PB)&cni, sizeof(cni)))
             return FALSE;
 
         trace((trSave, _TEXT("NMT::save() cbBuf=%d cbHash=%d\n"), buf.Size(), pbuf->Size() - cbPreHash));

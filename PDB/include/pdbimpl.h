@@ -66,6 +66,19 @@ inline bool implies(int a, int b) {
 #include "ptr.h"
 #include "mts.h"
 
+typedef struct OMFSegMapDesc {
+    union {
+        WORD  fAll;
+    } flags;           // descriptor flags bit field
+    WORD  ovl;         // the logical overlay number
+    WORD  group;       // group index into the descriptor array
+    WORD  frame;       // logical segment index - interpreted via flags
+    WORD  iSegName;    // segment or group name - index into sstSegName
+    WORD  iClassName;  // class name - index into sstSegName
+    DWORD offset;      // byte offset of the logical within the physical segment
+    DWORD cbSeg;       // byte count of the logical segment or group
+} OMFSegMapDesc;
+
 #if defined(_WIN64)
 const size_t s_cbMaxAlloc = 0xFFFFFFFFFFFFFFFFUI64 - 0xF;
 #else

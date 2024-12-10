@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include "no_sdl.h"
 
 #ifdef _M_IX86
 

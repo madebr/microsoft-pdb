@@ -10,6 +10,7 @@
 #include "debug_s.h"
 #include "cvlines.h"
 #include "set.h"
+#include "symtypeutils.h"
 
 static void setDSRError(PDB1 * ppdb1, DSR_EC ec) {
     static EC xlateDsrEcToPdbEc[] = {
@@ -27,12 +28,12 @@ static void setDSRError(PDB1 * ppdb1, DSR_EC ec) {
 // Declarations of some functions defined in sttosz.cpp
 CB ConvertSymRecFmMBCSToUTF8(PSYM psymSrc, PSYM psymDest, CB cbDest);
 BOOL fConvertSymRecStToSz(PB pbSrc, CB cbSrc, PB pbDest, CB *pcbDest, Array<OffMap>& rgOffMap);
-BOOL fConvertSymRecStToSzWithSig(PB pbSrc, CB cbSrc, CvtSyms& cvtsyms);
+BOOL fConvertSymRecStToSzWithSig(PB pbSrc, CB cbSrc, void *arg3, CB *pcbDest);
 
 Mod1::Mod1(PDB1* ppdb1_, DBI1* pdbi1_, IMOD imod_)
     : ppdb1(ppdb1_), pdbi1(pdbi1_), ptm(0), imod(imod_), fSymsAdded_S(FALSE),
     pwti(0), fECSymSeen(false), fAddLines(FALSE), fSymsAdded_T(FALSE),
-    fCoffToC13Failed(false), snType(snNil), snId(snNil), imodTypeRef(imodNil),
+    fCoffToC13Failed(false), snType(snNil), snId(snNil), /*imodTypeRef(imodNil),*/
     fOwnTM(0), fRefTM(0), fOwnTMR(0), fOwnTMPCT(0), fRefTMPCT(0),
     fSymsNeedStringTableFixup(false), fSymRecordsVerified(false),
     fHasTypeRef(FALSE)
@@ -438,16 +439,20 @@ bool Mod1::CheckFCreateReader(PB pb, CB cb, IDebugSSectionReader** ppReader, DWO
 #else
     DWORD ec;
     DSR_EC dsr_ec;
+#ifdef _MSC_VER
     __try { // make sure that ole libs are present
+#endif
         if (!IDebugSSectionReader::FCreateReader(pb, cb, ppReader, sig, &dsr_ec)) {
             setDSRError(ppdb1, dsr_ec);
             return false;
         }
         return true;
-    } 
+#ifdef _MSC_VER
+    }
     __except (ExceptionFilter(ec = GetExceptionCode(), GetExceptionInformation(), this)) {
         return false;
     }
+#endif
 #endif
 }
 
@@ -457,12 +462,16 @@ bool Mod1::CheckFCreateWriter(bool flag, IDebugSSectionWriter** ppWriter, DWORD 
     return false; // We don't want msbscxx.dll to be dependent on msobj71.dll
 #else
     DWORD ec;
+#ifdef _MSC_VER
     __try { // make sure that ole libs are present
+#endif
         return IDebugSSectionWriter::FCreateWriter(flag, ppWriter, sig, flag2);
+#ifdef _MSC_VER
     } 
     __except (ExceptionFilter(ec = GetExceptionCode(), GetExceptionInformation(), this)) {
         return false;
     }
+#endif
 #endif
 }
 
@@ -1702,10 +1711,10 @@ CB Mod1::cbGlobalRefs()
     }
 
     CB cbRet;
-    CB cb = sizeof (cbRet);
+    CB cb = sizeof(cbRet);
 
     if (fReadPbCb((PB) &cbRet, &cb, pmodi->cbSyms + pmodi->cbLines + pmodi->cbC13Lines, sizeof(OFF)) &&
-         cb == sizeof (OFF))
+         cb == sizeof(OFF))
         return cbRet;
 
     // Use "return -1" to indicate something wrong occurred in fReadPbCb(),
@@ -1814,8 +1823,8 @@ BOOL Mod1::fReadAndConvertSyms(PB pbDst, CB* pcb)
         }
 
         // Remember the signature!
-        if (pwti->fQuerySymConvertInfo(sci, pbSymBase, cbSymT, sizeof ULONG)) {
-            assert(sci.cbSyms >= ULONG(cbSymT) - sizeof ULONG);
+        if (pwti->fQuerySymConvertInfo(sci, pbSymBase, cbSymT, sizeof(ULONG))) {
+            assert(sci.cbSyms >= ULONG(cbSymT) - sizeof(ULONG));
             assert(sci.cSyms < ULONG(cbSymT) / 4); // something reasonable
             // grab all the memory we will need up front.
             if (!cvtsyms.rgOffMap().setSize(sci.cSyms) ||
@@ -1825,7 +1834,7 @@ BOOL Mod1::fReadAndConvertSyms(PB pbDst, CB* pcb)
             }
             sci.pbSyms = cvtsyms.bufSyms().Start();
             sci.rgOffMap = &cvtsyms.rgOffMap()[0];
-            if (!pwti->fConvertSymbolBlock(sci, pbSymBase, cbSymT, sizeof ULONG)) {
+            if (!pwti->fConvertSymbolBlock(sci, pbSymBase, cbSymT, sizeof(ULONG))) {
                 ppdb1->setOOMError();
                 return FALSE;
             }
@@ -1879,11 +1888,11 @@ BOOL Mod1::fConvertSymRecsStToSz(PB pbSrc, CB cbSrc)
     *(ULONG *)pbDst = CV_SIGNATURE_C13;
 
     // Convert the rest, leave a map in rgOffMap
-    cbNew -= sizeof ULONG;
+    cbNew -= sizeof(ULONG);
     BOOL fRet = fConvertSymRecStToSz(
-        pbSrc + sizeof ULONG, 
-        cbSrc - sizeof ULONG, 
-        pbDst + sizeof ULONG, 
+        pbSrc + sizeof(ULONG),
+        cbSrc - sizeof(ULONG),
+        pbDst + sizeof(ULONG),
         &cbNew,  
         cvtstsyms.rgOffMap());
 
@@ -2332,7 +2341,7 @@ BOOL Mod1::fCopySymOut(PSYM psym, PSYM *ppsymOut)
 BOOL Mod1::fCopyGlobalRef(OFF off)
 {
     assert(pdbi1->fWrite);
-    if (!bufGlobalRefs.Append((PB) &off, sizeof (OFF))) {
+    if (!bufGlobalRefs.Append((PB) &off, sizeof(OFF))) {
         ppdb1->setOOMError();
         return FALSE;
     }

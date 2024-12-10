@@ -11,11 +11,11 @@
 
 #ifndef __MSF_INCLUDED__
 #define MSF_IMP
-#include "..\include\msf.h"
+#include "msf.h"
 #endif
 #ifndef __CVR_INCLUDED__
 #define CVR_IMP
-#include <cvr.h>
+//#include <cvr.h>
 #endif
 
 #include "nmt.h"

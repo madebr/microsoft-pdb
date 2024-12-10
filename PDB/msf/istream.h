@@ -635,7 +635,7 @@ private:
             // Try to open it with semantics that allow rename of file for Windows NT.
 
             SECURITY_ATTRIBUTES sa = {
-                sizeof SECURITY_ATTRIBUTES,
+                sizeof(SECURITY_ATTRIBUTES),
                 NULL,
                 false
             };

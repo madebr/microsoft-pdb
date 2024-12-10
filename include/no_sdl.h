@@ -1,0 +1,19 @@
+#ifdef __MINGW32__
+#define _Deref_out_z_
+#define _In_
+#define _In_z_
+#define __in_z
+#define _In_count_(s)
+#define _Inout_z_
+#define __inout_z
+#define __out_ecount_opt(s)
+#define __out_ecount_full_opt(s)
+#define _Out_opt_capcount_(c)
+#define _Out_opt_cap_(s)
+#define _Out_opt_z_cap_(s)
+#define _Out_z_cap_(s)
+#define _Deref_out_opt_z_
+#define _Post_z_
+#define _Pre_notnull_
+#define _Pre_z_
+#endif

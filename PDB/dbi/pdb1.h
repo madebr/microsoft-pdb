@@ -22,7 +22,7 @@ static inline BOOL IsRealSig70(const SIG70& sig70)
 {
     PDBLOG_FUNC();
     static SIG70 sig70Null;                     // Must be all zeros
-    const int size = sizeof SIG70 - sizeof(sig70.Data1);
+    const int size = sizeof(SIG70) - sizeof(sig70.Data1);
     return memcmp(&sig70.Data2, &sig70Null.Data2, size) != 0;
 }
 

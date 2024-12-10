@@ -3,7 +3,7 @@
 #ifdef _DEBUG
 #define verify(x)       assert((x))
 #else
-#define verify(x)       (x)
+#define verify(x)       (x,0)
 #endif
 #endif  // verify
 
@@ -94,9 +94,12 @@ public :
             DWORD   cmsSleep = 0;
 
             do {
+#ifdef _MSC_VER
                 __try {
+#endif
                     dwExcept = 0;
                     memmove(buffer, m_pb + m_ulPos.QuadPart, read);
+#ifdef _MSC_VER
                 }
                 __except ( dwExcept = GetExceptionCode(),
                            (dwExcept == EXCEPTION_ACCESS_VIOLATION ||
@@ -105,6 +108,7 @@ public :
                     ::Sleep(cmsSleep);
                     cmsSleep += 200;
                 }
+#endif
             } while (dwExcept == EXCEPTION_IN_PAGE_ERROR && cmsSleep <= 5000);
 
             if (dwExcept) {
@@ -134,9 +138,12 @@ public :
         DWORD   cmsSleep = 0;
 
         do {
+#ifdef _MSC_VER
             __try {
+#endif
                 dwExcept = 0;
                 memmove(m_pb + m_ulPos.QuadPart, buffer, count);
+#ifdef _MSC_VER
             }
             __except ( dwExcept = GetExceptionCode(),
                        (dwExcept == EXCEPTION_ACCESS_VIOLATION ||
@@ -145,6 +152,7 @@ public :
                 ::Sleep(cmsSleep);
                 cmsSleep += 200;
             }
+#endif
         } while (dwExcept == EXCEPTION_IN_PAGE_ERROR && cmsSleep <= 5000);
 
         if (dwExcept) {

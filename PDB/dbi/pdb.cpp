@@ -17,6 +17,7 @@
 #define _INC_WTIME_INL          // Don't include inlined definitions of wtime()
 #include <time.h>
 
+#include "crtfubar.h"
 extern "C" _ACRTIMP time_t time( time_t *timer );
 
 #else
@@ -29,7 +30,9 @@ extern "C" _ACRTIMP time_t time( time_t *timer );
 #include "szcanon.h"
 #include "pdbver.h"
 
-#include "sha256.cpp"
+#include "sha256.h"
+
+#include "verstamp.h"
 
 extern
 const
@@ -42,6 +45,13 @@ ushort  rgusVer[] = { VER_PRODUCTVERSION };
 #define SetBits(a,b,c,d,e,f,g,h,i,j,k,l,m) \
     ((1<<a) & (1<<b) & (1<<c) & (1<<d) & (1<<e) & (1<<f) & (1<<g) & \
     (1<<h) & (1<<i) & (1<<j) & (1<<k) & (1<<l) & (1<<m))
+
+typedef void (PDBCALL *PfnPDBCopyReportProgress)(void *pvClientContext, IMOD mod, DWORD index);
+typedef BOOL (PDBCALL *PfnPDBCopyFilterModTypes)(void *pvClientContext, IMOD mod, DWORD *, PB *);
+typedef BOOL (PDBCALL *PfnPDBCopyFilterCustomModSyms)(void *pvClientContext, IMOD mod, DWORD, DWORD*, PB*);
+typedef BOOL (PDBCALL *pvClientContext)(void *pvClientContext,const wchar_t *);
+typedef BOOL (PDBCALL *PfnPDBCopyFilterPdbMappings)(void *pvClientContext, DWORD *, wchar_t **, wchar_t **);
+typedef BOOL (PDBCALL *PfnPDBCopyReportMissingPDB)(void *, const wchar_t *);
 
 const __int32 PDB1::c_mpEcEcBest[] =
 {
@@ -68,7 +78,7 @@ const __int32 PDB1::c_mpEcEcBest[] =
     0,
     
     // (EC_USAGE, *), all are better than EC_USAGE
-    0xffffffff,
+    (int)0xffffffff,
     
     // (EC_OUT_OF_MEMORY, *) hmmm, none better than OOM except OK
     SetBits(EC_OK, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -91,36 +101,36 @@ const __int32 PDB1::c_mpEcEcBest[] =
         0, 0, 0, 0, 0, 0, 0, 0, 0),
 
     // (EC_PRECOMP_REQUIRED, *) n/a
-    0xffffffff,
+    (int)0xffffffff,
 
     // (EC_OUT_OF_TI), *) n/a
-    0xffffffff,
+    (int)0xffffffff,
 
     // (EC_NOT_IMPLEMENTED, *), n/a
-    0xffffffff,
+    (int)0xffffffff,
 
     // (EC_V1_PDB, *), n/a
-    0xffffffff,
+    (int)0xffffffff,
 
     // (EC_FORMAT, *), n/a
     SetBits(EC_OK, EC_OUT_OF_MEMORY, EC_FILE_SYSTEM,EC_INVALID_AGE,
         EC_INVALID_SIG, EC_ACCESS_DENIED, 0, 0, 0, 0, 0, 0, 0),
 
     // (EC_LIMIT, *), n/a
-    0xffffffff,
+    (int)0xffffffff,
 
     // (EC_CORRUPT, *) n/a
-    0xffffffff,
+    (int)0xffffffff,
 
     // (EC_TI16, *) n/a
-    0xffffffff,
+    (int)0xffffffff,
 
     // (EC_ACCESS_DENIED, *)
     SetBits(EC_OK, EC_OUT_OF_MEMORY, EC_FILE_SYSTEM,EC_INVALID_AGE,
         EC_INVALID_SIG, 0, 0, 0, 0, 0, 0, 0, 0),
 
     // EC_ILLEGAL_TYPE_EDIT
-    0xffffffff,
+    (int)0xffffffff,
 
     // EC_INVALID_EXECUTABLE
     SetBits(EC_OK, EC_OUT_OF_MEMORY, EC_FILE_SYSTEM,EC_INVALID_AGE,
@@ -144,7 +154,7 @@ const __int32 PDB1::c_mpEcEcBest[] =
         EC_DBG_NOT_FOUND, EC_NO_DEBUG_INFO, 0, 0, 0),
 
     // EC_CORRUPT_TYPEPOOL
-    0xffffffff,
+    (int)0xffffffff,
 
     // EC_DEBUG_INFO_NOT_IN_PDB
     SetBits(EC_OK, EC_OUT_OF_MEMORY, EC_FILE_SYSTEM,EC_INVALID_AGE,
@@ -152,19 +162,19 @@ const __int32 PDB1::c_mpEcEcBest[] =
         0, 0, 0, 0, 0),
 
     // EC_RPC
-    0xffffffff,
+    (int)0xffffffff,
 
     // EC_UNKNOWN
-    0xffffffff,
+    (int)0xffffffff,
 
     // EC_BAD_CACHE_PATH
-    0xffffffff,
+    (int)0xffffffff,
 
     // EC_CACHE_FULL
-    0xffffffff,
+    (int)0xffffffff,
 
     // EC_TOO_MANY_MOD_ADDTYPE
-    0xffffffff,
+    (int)0xffffffff,
 
     // EC_MINI_PDB, same as EC_FORMAT
     SetBits(EC_OK, EC_OUT_OF_MEMORY, EC_FILE_SYSTEM,EC_INVALID_AGE,
@@ -1119,7 +1129,7 @@ BOOL PDB1::loadPdbStream(MSF *pmsf, const wchar_t *wszPDB, EC *pec,  __out_ecoun
     PB      pb, pbEnd;
     CB      cbStream = pmsf->GetCbStream(snPDB);
 
-    if (cbStream < sizeof PDBStream) {
+    if (cbStream < sizeof(PDBStream)) {
         goto formatError;
     }
 
@@ -1945,7 +1955,6 @@ private:
     Map<DWORD, Array<DWORD> *, HcNi> mpImodToRgIsectCoff;
 };
 
-
 PDBCopy::PDBCopy (
     PDB *ppdbIn_, 
     PDB *ppdbOut_, 
@@ -2736,7 +2745,6 @@ BOOL PDBCopy::CopyMods()
     return TRUE;
 }
 
-
 BOOL PDBCopy::CopySecMap()
 {
     PB pb;
@@ -2763,7 +2771,7 @@ BOOL PDBCopy::CopySecMap()
     pdbiIn->QuerySecMap(pb, &cb);
 
     PB pbEnd = pb + cb;
-    for (OMFSegMapDesc* pDesc =(OMFSegMapDesc*)(pb + sizeof (OMFSegMap));
+    for (OMFSegMapDesc* pDesc =(OMFSegMapDesc*)(pb + sizeof(OMFSegMap));
         (PB) pDesc < pbEnd;
         pDesc++) {
             if (!pdbiOut->AddSec(pDesc->frame,
@@ -3032,7 +3040,6 @@ BOOL PDBCopy::ProcessModInMiniPDB(Mod *pmodIn, Mod *pmodOut)
 
     PB pbTyp;
     DWORD cbTyp;
-
     if (!pfnFilterT(pvClientContext, imod, &cbTyp, &pbTyp)) {
         SetLastError(ppdbIn);
         return FALSE;
@@ -3049,7 +3056,6 @@ BOOL PDBCopy::ProcessModInMiniPDB(Mod *pmodIn, Mod *pmodOut)
             wchar_t  szTmp[_MAX_PATH];
             wchar_t  szFullMapped[_MAX_PATH];
             const wchar_t *szTS = ((DBI1 *) pdbiOut)->szGetTsInfo(ptype, szTmp, szFullMapped, &sig70, &age);
-
             pfnReportMissingPDB(pvClientContext, szTS);
 
             // If this callback returns, that means the client has ignored the

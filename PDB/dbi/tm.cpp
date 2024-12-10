@@ -269,7 +269,7 @@ BOOL TMR::fInit(PB pbTypes_, CB cb, SZ szModule, ULONG sigTypes)
 
     // had to defer finding precomp tmr until we look for an endprecomp
     // this is to generate a consistent link error regardless of module link order
-    PTYPE ptypePreComp = PTYPE( ((PB)plfPreComp) - sizeof (ptypePreComp->len) );
+    PTYPE ptypePreComp = PTYPE( ((PB)plfPreComp) - sizeof(ptypePreComp->len) );
 
     // we do not need to go after the TMPCT if we are the owner of it; we have it
     // already in m_ptmpct if so.

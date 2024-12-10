@@ -958,8 +958,8 @@ union BIGMSF_HDR {  // page 0 (and more if necessary)
 
 cassert(sizeof(PG) == sizeof(BIGMSF_HDR));
 
-static const char szHdrMagic[0x2c] =    "Microsoft C/C++ program database 2.00\r\n\x1a\x4a\x47";
-static const char szBigHdrMagic[0x1e] = "Microsoft C/C++ MSF 7.00\r\n\x1a\x44\x53";
+static const char szHdrMagic[0x2c] =    "Microsoft C/C++ program database 2.00\r\n\x1a\x4a\x47";  // Includes 2 terminating '\0' characters
+static const char szBigHdrMagic[0x1e] = "Microsoft C/C++ MSF 7.00\r\n\x1a\x44\x53";  // Includes 2 terminating '\0' characters
 
 class MSF_HB :public MSF { // multistream file, home brewed version
 public:
@@ -1270,11 +1270,11 @@ private:
     }
 
     BOOL fValidHdr() {
-        if (memcmp(MsfHdr().szMagic, szHdrMagic, sizeof szHdrMagic) == 0) {
+        if (memcmp(MsfHdr().szMagic, szHdrMagic, sizeof(szHdrMagic)) == 0) {
             fBigMsf = false;
             return validCbPg(MsfHdr().cbPg);
         }
-        else if (memcmp(BigMsfHdr().szMagic, szBigHdrMagic, sizeof szBigHdrMagic) == 0) {
+        else if (memcmp(BigMsfHdr().szMagic, szBigHdrMagic, sizeof(szBigHdrMagic)) == 0) {
             fBigMsf = true;
             return validCbPg(BigMsfHdr().cbPg);
         }
@@ -1661,8 +1661,8 @@ BOOL MSF_HB::create(MSF_EC* pec, CB cbPage) {
 
 BOOL MSF_HB::afterCreate(MSF_EC* pec, CB cbPage) {
     // init hdr; when creating a new MSF, always create the BigMsf variant.
-    memset(&bighdr, 0, sizeof bighdr);
-    memcpy(&bighdr.szMagic, szBigHdrMagic, sizeof szBigHdrMagic);
+    memset(&bighdr, 0, sizeof(bighdr));
+    memcpy(&bighdr.szMagic, szBigHdrMagic, sizeof(szBigHdrMagic));
     bighdr.cbPg = cbPage;
     bighdr.pnFpm  = msfparms.pnFpm0;
     bighdr.pnMac  = msfparms.pnDataMin;
@@ -1792,7 +1792,7 @@ BOOL MSF_HB::Commit(MSF_EC *pec) {
 
         bighdr.siSt.cb = st.mpsnsi[snSt].cb;
         bighdr.siSt.mpspnpn = 0;
-        assert(cpnForCbLgCbPg(bighdr.siSt.spnMac(lgcbPg)*sizeof(PN32), lgcbPg) * sizeof(PN32) <= sizeof bighdr.mpspnpnSt);
+        assert(cpnForCbLgCbPg(bighdr.siSt.spnMac(lgcbPg)*sizeof(PN32), lgcbPg) * sizeof(PN32) <= sizeof(bighdr.mpspnpnSt));
 
         memcpy(bighdr.mpspnpnSt, siPnList.mpspnpn, cpnForCbLgCbPg(siPnList.cb, lgcbPg) * sizeof(PN32));
 
@@ -1801,7 +1801,7 @@ BOOL MSF_HB::Commit(MSF_EC *pec) {
     else {
         hdr.siSt.cb = st.mpsnsi[snSt].cb;
         hdr.siSt.mpspnpn = 0;
-        assert(hdr.siSt.spnMac(lgcbPg)*sizeof(PN) <= sizeof hdr.mpspnpn);
+        assert(hdr.siSt.spnMac(lgcbPg)*sizeof(PN) <= sizeof(hdr.mpspnpn));
 
         // The in-memory array is wider than the on-disk page list - so copy
         // them by hand.

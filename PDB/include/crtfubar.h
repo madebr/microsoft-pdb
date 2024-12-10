@@ -3,8 +3,11 @@
 // Fix up the CRT's FUBAR'ed _[w]sopen madness; we still have to link/run for/on
 // down-level OS versions of the CRT DLL
 
-// Produce prototypes matching the CRT but with different names (C linkage too!)
+#ifndef _ACRTIMP
+#define _ACRTIMP
+#endif
 
+// Produce prototypes matching the CRT but with different names (C linkage too!)
 extern "C" {
     int _ACRTIMP __cdecl _pdb_sopen(const char *, int, int, int);
     int _ACRTIMP __cdecl _pdb_wsopen(const wchar_t *, int, int, int);

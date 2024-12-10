@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // TPI implementation declarations
 
-#include "SymTypeUtils.h"
+//#include "SymTypeUtils.h"
 
 #pragma warning(push)
 #pragma warning(disable:4200)
@@ -110,7 +110,7 @@ cassert(LF_STRUCTURE+1 == LF_UNION);
 #define cbDWAlign(cb)   (((cb) + 3) & ~3)
 
 struct REC { // type record:
-    BYTE    buf[];          // record contents
+    BYTE    buf[1];          // record contents
     void* operator new(size_t size, TPI1* ptpi1, PB pb);
 #ifdef PDB_DEFUNCT_V8
     void* operator new(size_t size, TPI1* ptpi1, PC8REC pc8rec);

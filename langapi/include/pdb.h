@@ -4,8 +4,10 @@
 #pragma once
 
 #ifndef _VC_VER_INC
-#include "vcver.h"
+//#include "vcver.h"
 #endif
+
+#include <objidl.h>
 
 #pragma warning(push)
 #pragma warning(disable:4201)
@@ -230,11 +232,12 @@ enum PDBErrors {
     EC_V1_PDB,                      // "pdb name", PDB::Open* only (obsolete)
     EC_UNKNOWN_FORMAT = EC_V1_PDB,  // pdb can't be opened because it has newer versions of stuff
     EC_FORMAT,                      // accessing pdb with obsolete format
+    EC_MINI_PDB = EC_FORMAT,
     EC_LIMIT,
     EC_CORRUPT,                     // cv info corrupt, recompile mod
     EC_TI16,                        // no 16-bit type interface present
     EC_ACCESS_DENIED,               // "pdb name", PDB file read-only
-    EC_ILLEGAL_TYPE_EDIT,           // trying to edit types in read-only mode
+    EC_ILLEGAL_TYPE_EDIT = 0x11,           // trying to edit types in read-only mode
     EC_INVALID_EXECUTABLE,          // not recogized as a valid executable
     EC_DBG_NOT_FOUND,               // A required .DBG file was not found
     EC_NO_DEBUG_INFO,               // No recognized debug info found
@@ -388,6 +391,7 @@ enum {
     copyKeepAnnotation      = 0x00000004,   // keep S_ANNOTATION symbols, filtering on the first string
     copyKeepAnnotation2     = 0x00000008,   // keep S_ANNOTATION symbols, filtering on both the first and last strings
     copyRemoveNamedStream   = 0x00000010,   // remove named stream only
+    copyCustomModSyms       = 0x00000020,
 };
 
 // PDBCopy callback signatures and function pointer types for PDB::CopyTo2 and CopyToW2
@@ -396,6 +400,11 @@ enum PCC {
     pccFilterPublics,
     pccFilterAnnotations,
     pccFilterStreamNames,
+    pccFilterCustomModSyms,
+    pccFilterModTypes,
+    pccFilterPdbMappings,
+    pccReportMissingPDB,
+    pccReportProgress,
 };
 
 #if !defined(__cplusplus)
@@ -682,7 +691,7 @@ struct SO {
 
 #ifdef __cplusplus
 
-struct IStream;
+//struct IStream;
 
 // C++ Binding
 
@@ -937,17 +946,17 @@ PdbInterface DBI {             // debug information
         ULONG           grFlags     // must be zero; no flags defn'ed as yet
         ) pure;
 
-    typedef ::PFNNOTEPDBUSED  PFNNOTEPDBUSED;
+    typedef PFNNOTEPDBUSED  PFNNOTEPDBUSED;
     virtual BOOL FSetPfnNotePdbUsed(void * pvContext, PFNNOTEPDBUSED) pure;
 
     virtual BOOL FCTypes() pure;
     virtual BOOL QueryFileInfo2(BYTE *pb, long *pcb) pure;
     virtual BOOL FSetPfnQueryCallback(void *pvContext, PFNDBIQUERYCALLBACK) pure;
 
-    typedef ::PFNNOTETYPEMISMATCH  PFNNOTETYPEMISMATCH;
+    typedef PFNNOTETYPEMISMATCH  PFNNOTETYPEMISMATCH;
     virtual BOOL FSetPfnNoteTypeMismatch(void * pvContext, PFNNOTETYPEMISMATCH) pure;
 
-    typedef ::PFNTMDTYPEFILTER PFNTMDTYPEFILTER;
+    typedef PFNTMDTYPEFILTER PFNTMDTYPEFILTER;
     virtual BOOL FSetPfnTmdTypeFilter(void *pvContext, PFNTMDTYPEFILTER) pure;
 
     virtual BOOL RemovePublic(_In_z_ const char* szPublic) pure;

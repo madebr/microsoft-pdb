@@ -33,6 +33,10 @@
 
 #pragma warning(disable:4069)  // Disable warning about long double same as double
 
+#ifndef min
+#define min(A,B) ((A)<=(B)?(A):(B))
+#endif
+
 const wchar_t * const C7HLSLRegTypeStrings[] =
 {
     L"TEMP",  

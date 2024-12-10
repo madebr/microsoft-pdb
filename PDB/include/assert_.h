@@ -38,10 +38,10 @@ extern BOOL rgbEnableDiagnostic[20];
 #define	dprintf(args)
 #define	debug(x)
 #define rangeCheck(val, valMin, valMax) (val)
-#define assume(x)       __assume(x)
+#define assume(x)       //__assume(x)
 #endif
 
 // compile time assert
 #if !defined(cassert)
-#define cassert(x) extern char dummyAssert[ (x) ]
+#define cassert(x) extern char dummyAssert[ (x) ? 1 : -1 ]
 #endif

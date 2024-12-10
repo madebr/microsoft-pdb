@@ -3,6 +3,8 @@
 #ifndef __MSF_INCLUDED__
 #define __MSF_INCLUDED__
 
+#include <objidl.h>
+
 #ifndef TRUE
 
 #define TRUE    1

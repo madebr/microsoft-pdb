@@ -928,10 +928,10 @@ void dumpDbiHdr(DBI *pdbi, const wchar_t *szPdbName)
 
     if(phdr->cbDbgHdr) {
         unsigned short  rgsnDbgStreams[dbgtypeMax + 10];    // fudge factor
-        memset(rgsnDbgStreams, -1, sizeof rgsnDbgStreams);
+        memset(rgsnDbgStreams, -1, sizeof(rgsnDbgStreams));
 
         unsigned off =
-            sizeof NewDBIHdr +
+            sizeof(NewDBIHdr) +
             phdr->cbGpModi +
             phdr->cbSC +
             phdr->cbSecMap +
@@ -964,7 +964,7 @@ void dumpDbiHdr(DBI *pdbi, const wchar_t *szPdbName)
         };
 
 
-        CB  cbT = min(sizeof rgsnDbgStreams, phdr->cbDbgHdr);
+        CB  cbT = min(sizeof(rgsnDbgStreams), phdr->cbDbgHdr);
         if (pmsf->ReadStream(snDbi, off, &rgsnDbgStreams, &cbT )) {
             CB cb = 0;
             unsigned isn = 0;
@@ -980,7 +980,7 @@ void dumpDbiHdr(DBI *pdbi, const wchar_t *szPdbName)
                 }
 
                 wprintf(L"\tSN of %s (%d) = %s;\n", mpdbgtypesz[isn], isn, szT);
-                cb += sizeof SN;
+                cb += sizeof(SN);
                 isn++;
             }
 
@@ -1062,7 +1062,7 @@ void dumpTpiHdr(MSF *pmsf, TPI *ptpi, const wchar_t *szPdbName, bool fId)
     HDR_16t *phdr16 = reinterpret_cast<HDR_16t*>(&hdrTpi);
     HDR_VC50Interim *phdrvc50Int = reinterpret_cast<HDR_VC50Interim*>(&hdrTpi);
 
-    CB  cbHdrT = sizeof hdrTpi;
+    CB  cbHdrT = sizeof(hdrTpi);
 
     if (!pmsf->ReadStream(fId ? snIpi : snTpi, 0, &hdrTpi, &cbHdrT) && cbHdrT >= cbHdrMin) {
         wprintf(L"FAILED: ReadStream\n");
@@ -2529,7 +2529,7 @@ bool dumpLines(Mod *pmod)
             struct SPB { unsigned short cSeg; unsigned short pad; unsigned long baseSrcLn[]; };
 
             SPB *pspb = (SPB *) pb;
-            pb += sizeof SPB + sizeof(long) * pspb->cSeg;
+            pb += sizeof(SPB) + sizeof(long) * pspb->cSeg;
 
             SE *pse = (SE *) pb;
             pb += sizeof(SE) * pspb->cSeg;

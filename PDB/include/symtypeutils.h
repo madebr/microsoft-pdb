@@ -102,7 +102,7 @@ inline ST stMemberName(lfEasy *pleaf)
             ST st = (ST) plfOneMethod->vbaseoff; 
             if (plfOneMethod->attr.mprop == CV_MTintro || 
                 plfOneMethod->attr.mprop == CV_MTpureintro) 
-                st += sizeof (long);
+                st += sizeof(long);
             return st;
         }
         
@@ -112,7 +112,7 @@ inline ST stMemberName(lfEasy *pleaf)
             ST st = (ST) plfOneMethod->vbaseoff; 
             if (plfOneMethod->attr.mprop == CV_MTintro || 
                 plfOneMethod->attr.mprop == CV_MTpureintro) 
-                st += sizeof (long);
+                st += sizeof(long);
             return st;
         }
 

@@ -193,7 +193,13 @@ public:
     }
 };
 
-class TMTS sealed : public TM { // type map for modules which use a different TypeServer
+#if __cplusplus >= 201103L
+#define FINAL final
+#else
+#define FINAL
+#endif
+
+class TMTS FINAL : public TM { // type map for modules which use a different TypeServer
 public:
     TMTS(PDB1* ppdb1To_, DBI1* pdbi1To_, TPI* ptpiTo_, TPI* pipiTo_);
     BOOL fInit(PDB* ppdbFrom);
@@ -219,7 +225,7 @@ private:
 // the from and to type pools are the same (mintypeinfo is the culprit).
 // All this class does is snoop the top level type indices in fMapRti and do
 // the same processing that the TMTS would do.
-class TMEQTS sealed : public TM { // type map for modules which use the same TypeServer
+class TMEQTS FINAL : public TM { // type map for modules which use the same TypeServer
 public:
     TMEQTS(PDB1* ppdb1To_, DBI1* pdbi1To_, TPI* ptpiTo_, TPI* pipiTo_);
     BOOL fInit();
@@ -297,7 +303,7 @@ public:
 
 protected:
     BOOL fMapRti(TI& rti, bool fID, int depth, bool *pfDefnUdt);
-    virtual inline TI& rtiMapped(TI ti, bool fID) const;
+    virtual TI& rtiMapped(TI ti, bool fID) const;
 
     TMPCT*      m_ptmpct;   // (if non-0) type map for PCT types
     PTYPE*      mptiptype;  // mapping from old TI to old type record address
@@ -321,7 +327,7 @@ private:
     bool        f16bitTypes;
 };
 
-class TMPCT sealed : public TMR { // type map for a PCT module
+class TMPCT FINAL : public TMR { // type map for a PCT module
 public:
     TMPCT(PDB1* ppdb1To_, DBI1* pdbi1To_, TPI* ptpiTo_, TPI* pipiTo_);
     BOOL fInit(PB pbTypes_, CB cb, _In_z_ SZ szModule, ULONG sig);

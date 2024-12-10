@@ -287,7 +287,7 @@ private:
                     );
     bool fInitRefBuffer(RefBuf *prbuf);
     bool findC13Lines();
-    bool Mod1::fQueryC13LinesBuf(DWORD cb, PB pb, DWORD *pcb, enum DEBUG_S_SUBSECTION_TYPE e);
+    bool fQueryC13LinesBuf(DWORD cb, PB pb, DWORD *pcb, enum DEBUG_S_SUBSECTION_TYPE e);
 
     // Long File name support
     BOOL fConvertSymRecsStToSz(PB pbSrc, CB cbSrc);

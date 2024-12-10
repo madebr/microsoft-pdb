@@ -233,13 +233,13 @@ BYTE getbyte()
 
 short getshort()
 {
-    register short i;
+    short i;
 
     if ( ( (Leaf_pos + 2) <= Leaf_bytes) && ( (Types_pos + 2) <= Types_bytes)) {
         Types_pos += 2;
         Leaf_pos += 2;
         i = * (short *) Buf;
-        Buf += sizeof (short);
+        Buf += sizeof(short);
         return (i);
     }
 
@@ -265,7 +265,7 @@ long getlong()
         Types_pos += 4;
         Leaf_pos += 4;
         l = * (short *) Buf;
-        Buf += sizeof (long);
+        Buf += sizeof(long);
         return (l);
     }
 

@@ -22,6 +22,8 @@ Revision History:
 #ifndef _UTF8_H_
 #define _UTF8_H_
 
+#include "no_sdl.h"
+
 #define ASCII                 0x007f
 
 #define UTF8_2_MAX            0x07ff  // max UTF8 2-byte sequence (32 * 64 = 2048)

@@ -11,6 +11,7 @@
 #include "iset.h"
 #endif
 
+#include "misc.h"
 #include "mts.h"
 
 #define self (*this)
@@ -65,7 +66,7 @@ public:
 };
 
 template<typename D>
-class HashClass<typename D, hcCRC> : public HashClassBase<D> {
+class HashClass<D, hcCRC> : public HashClassBase<D> {
 public:
     HashClass( void *pvoid = NULL ) { // Just there so that this code compiles
         assert(pvoid == NULL); 
@@ -77,7 +78,7 @@ public:
 };
 
 template<typename D>
-class HashClass<typename D, hcMD5> : public HashClassBase<D> {
+class HashClass<D, hcMD5> : public HashClassBase<D> {
 public:
     HashClass( void *pvoid = NULL ) { // Just there so that this code compiles
         assert(pvoid == NULL); 

@@ -1,6 +1,16 @@
 #ifndef __ARRAY_INCLUDED__
 #define __ARRAY_INCLUDED__
 
+#ifndef max
+#define max(a, b) ((a)>=(b)?(a):(b))
+#endif
+#ifndef min
+#define min(a, b) ((a)>=(b)?(b):(a))
+#endif
+
+
+#include "buffer.h"
+
 template <class T> inline void __swap(T& t1, T& t2) {
     T t = t1;
     t1 = t2;
@@ -10,8 +20,6 @@ template <class T> inline void __swap(T& t1, T& t2) {
 #define self (*this)
 
 namespace pdb_internal {
-
-class Buffer;       // forward declaration of Buffer;
 
 template <class T> class Array {
     T* rgt;
@@ -41,7 +49,7 @@ public:
         return itMax;
     }
     size_t cbArray() const {
-        return itMac * sizeof T;
+        return itMac * sizeof(T);
     }
 
     BOOL getAt(size_t it, T** ppt) const {
@@ -208,7 +216,7 @@ BOOL Array<T>::setSize(size_t itMacNew) {
 
 template <class T> inline
 BOOL Array<T>::save(Buffer* pbuf) const {
-    return pbuf->Append((PB)&itMac, sizeof itMac) &&
+    return pbuf->Append((PB)&itMac, sizeof(itMac)) &&
            (itMac == 0 || pbuf->Append((PB)rgt, itMac*sizeof(T)));
 }
 
@@ -279,7 +287,7 @@ BOOL Array<T>::findFirstEltSuchThat_Rover(BOOL (*pfn)(T*, void*), void* pArg, un
         }
     }
 
-    for (it = 0; it < *pit; ++it) {
+    for (unsigned it = 0; it < *pit; ++it) {
         if ((*pfn)(&rgt[it], pArg)) {
             *pit = it;
             return TRUE;

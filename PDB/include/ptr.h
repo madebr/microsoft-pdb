@@ -1,6 +1,6 @@
 #ifndef __PTR_INCLUDED__
 #define __PTR_INCLUDED__
-
+#if 1
 // UNDONE: this should move to ref.h and replace COMRefPtr as well in Orcas
 template <class T, template <class S> class Trait > class AutoPtr {
 public:
@@ -29,6 +29,7 @@ public:
         pt = pt_;
         return *this;
     }
+#if 0
     AutoPtr<T, Trait>& operator=(AutoPtr<T, Trait> const& t) {
         if (pt_ != NULL) {
             Trait<T>::CopyAddRef(pt);
@@ -37,6 +38,7 @@ public:
         pt = t.pt;
         return *this;
     }
+#endif
 
     
     T ** operator&() {
@@ -72,4 +74,5 @@ public:
 
 template <class T> class AutoClosePtr : public AutoPtr<T, AutoCloseTrait> {};
 template <class T> class AutoReleasePtr : public AutoPtr<T, AutoReleaseTrait> {};
+#endif
 #endif // !__PTR_INCLUDED__

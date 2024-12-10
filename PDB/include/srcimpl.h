@@ -19,7 +19,7 @@ private:
     {
         memset(this, 0, sizeof(SHO));
         
-        cb = sizeof SrcHeaderOut;
+        cb = sizeof(SrcHeaderOut);
         ver = srcverOne;
         sig = srchdr.sig;
         cbSource = srchdr.cbSource;

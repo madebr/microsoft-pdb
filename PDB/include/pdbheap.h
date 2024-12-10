@@ -21,6 +21,7 @@
 #include <crtdbg.h>
 #endif
 
+#if 0
 #if defined(PDB_SERVER) || defined(MSOBJ_DLL) || defined(STANDALONE_HEAP)
 #define INLINE inline
 
@@ -123,27 +124,32 @@ INLINE void __cdecl operator delete[] (void *pv)
 
 #else // if not (defined(PDB_SERVER) || defined(MSOBJ_DLL) || defined(STANDALONE_HEAP))
 
+#if 0
 void __cdecl operator delete(void *);
 void *__cdecl operator new(size_t);
 void * __cdecl operator new[](size_t cb);
 void __cdecl operator delete[](void * pv);
+#endif
 
-#endif 
+#endif
+#endif
 
 enum FILL { zeroed = 0 };
-inline void* __cdecl operator new(size_t size, FILL) {
+#if 1
+inline void* operator new(size_t size, FILL) {
     BYTE* pb = new BYTE[size];
     if (pb)
         memset(pb, 0, size);
     return pb;
 }
 
-inline void* __cdecl operator new[](size_t size, FILL) {
+inline void* operator new[](size_t size, FILL) {
     BYTE* pb = new BYTE[size];
     if (pb)
         memset(pb, 0, size);
     return pb;
 }
+#endif
 
 
 #endif    /* __HEAP_INCLUDED__ */

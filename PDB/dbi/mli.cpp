@@ -462,7 +462,7 @@ OFF SrcFile::Construct(PB pbStart, OFF off, POOL_AlignNative& pool)
     szFile = szCopySt((ST)pbName);
 
     // Construct the section list
-    size_t  offSectInfo = off + 2 * sizeof(USHORT) + csect * sizeof (ULONG);
+    size_t  offSectInfo = off + 2 * sizeof(USHORT) + csect * sizeof(ULONG);
     pSectInfo* ppSI = &pSectInfos;
 
     for (int i = 0; i < csect; i++)
@@ -625,7 +625,7 @@ BOOL MLI::Dump(const Buffer& buffer) const
         pb = buffer.Start() + pfsb->baseSrcFile[ifile];
         struct SPB { short cSeg; short pad; long baseSrcLn[]; };
         SPB* pspb = (SPB*)pb;
-        pb += sizeof SPB + sizeof(long)*pspb->cSeg;
+        pb += sizeof(SPB) + sizeof(long)*pspb->cSeg;
         pse = (SE*)pb;
         pb += sizeof(SE)*pspb->cSeg;
         unsigned char cbName = *pb++;

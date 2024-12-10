@@ -288,6 +288,10 @@ typedef enum CV_builtin_e {
     CV_BI_HLSL_MIN12INT                 = 0x0221,
     CV_BI_HLSL_MIN16INT                 = 0x0222,
     CV_BI_HLSL_MIN16UINT                = 0x0223,
+    CV_BI_HLSL_CONSTANT_BUFFER          = 0x0224,
+
+    CV_BI_HLSL_start                    = CV_BI_HLSL_INTERFACE_POINTER,
+    CV_BI_HLSL_end                      = CV_BI_HLSL_CONSTANT_BUFFER,
 
     // 0x0400 - 0xffff - Unused.
     

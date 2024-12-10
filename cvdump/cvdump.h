@@ -23,8 +23,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys\stat.h>
-#include <sys\types.h>
+//#include <sys\stat.h>
+//#include <sys\types.h>
 #include <time.h>
 
 #include "cvexefmt.h"
@@ -113,8 +113,8 @@ extern  OMFDirEntry Libraries;         // sstLibraries directory entry
 extern  OMFDirEntry GlobalPub;
 extern  OMFDirEntry GlobalSym;
 extern  OMFDirEntry GlobalTypes;
-BYTE   RecBuf[];
-extern  WORD      Sig;               // file signature
+extern  BYTE        RecBuf[];
+extern  WORD        Sig;               // file signature
 
 
 void Fatal(const wchar_t *);

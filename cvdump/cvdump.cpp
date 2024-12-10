@@ -15,7 +15,7 @@
 #define STRICT
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
-#include "_winnt2.h"
+//#include "_winnt2.h"
 
 #ifndef IMAGE_FILE_MACHINE_POWERPCBE
 #define IMAGE_FILE_MACHINE_POWERPCBE         0x01F2  // IBM PowerPC Big-Endian
@@ -1124,6 +1124,111 @@ void DumpSegMap()
     StdOutPutc(L'\n');
 }
 
+void DumpTyp()
+{
+    bool no_header = true;
+    char buffer[256];
+    for (PMOD mod = ModList; mod != NULL; mod = mod->next) {
+        cbRec = mod->TypeSize;
+        if (cbRec != 0 && (iModToList == 0 || iModToList == mod->iMod)) {
+            if (no_header) {
+                no_header = false;
+                StdOutPuts(L"\n\n*** TYPES section\n");
+            }
+            _lseek(exefile, mod->TypesAddr + lfoBase, SEEK_SET);
+            strcpy_s(buffer, sizeof(buffer), mod->ModName);
+            StdOutVprintf(L"%S\n", buffer);
+            cbRec = 4;
+            DWORD subsection;
+            if (_read(exefile, &subsection, 4) != 4) {
+                Fatal(L"Can't Read Types subsection");
+            }
+            switch (subsection) {
+            case 1:
+            case 2:
+            case 4:
+                DumpModTypC7(mod->TypeSize - 4);
+                break;
+            default:
+                _lseek(exefile, mod->TypesAddr + lfoBase, 0);
+                DumpModTypC6(mod->TypeSize);
+            }
+        }
+    }
+}
+
+void DumpCom()
+{
+//    dVar1 = GlobalTypes.lfo;
+//    uVar5 = 0;
+//    local_28 = 0x1000;
+//    local_18 = 0;
+//    local_2c = 0;
+//    local_c = 0;
+//    local_1c = GlobalTypes.lfo;
+//    local_24 = 0;
+    DWORD ti = 4096;
+    DWORD dummy;
+    size_t extra_offset = 0;
+    unsigned long global_types_offset = GlobalTypes.lfo;
+    _lseek(exefile, lfoBase + GlobalTypes.lfo, SEEK_SET);
+    if (Sig != CV_SIGNATURE_C13) {
+        extra_offset = 4;
+        _read(exefile, &dummy, 4);
+    }
+    DWORD count_types;
+    _read(exefile, &count_types, 4);
+    DWORD *buffer = (DWORD *) malloc(4096 * sizeof(DWORD));
+    if (buffer == NULL) {
+        Fatal(L"Out of memory");
+    }
+    if (Sig == CV_SIGNATURE_RESERVED || Sig == 7) {
+        global_types_offset = GlobalTypes.lfo + 4 + extra_offset + 4 * count_types;
+    }
+    StdOutPrintf(L"\n\n*** GLOBAL TYPES section (%d types)\n", count_types);
+    DWORD max_type_in_buffer = 0;
+    DWORD start_buffer;
+    DWORD end_buffer;
+    USHORT max_type_size = 0;
+    for (int i = 0; i < count_types; i++) {
+        if (i >= max_type_in_buffer) {
+            _lseek(exefile,lfoBase + max_type_in_buffer * 4 + 4 + GlobalTypes.lfo + extra_offset, SEEK_SET);
+            DWORD count_buffer = count_types - max_type_in_buffer;
+            if (count_buffer > 4096) {
+                count_buffer = 4096;
+            }
+            _read(exefile, buffer, count_buffer * sizeof(DWORD));
+            end_buffer = max_type_in_buffer + count_buffer;
+            start_buffer = max_type_in_buffer;
+        }
+        _lseek(exefile, lfoBase + buffer[i - start_buffer] + global_types_offset, SEEK_SET);
+        if (_read(exefile, RecBuf, sizeof(unsigned short)) != sizeof(unsigned short)) {
+            Fatal(L"Types subsection wrong length");
+        }
+        DWORD subsection_length = *(unsigned short*)RecBuf;
+        if (subsection_length > 0xfffc) {
+            Fatal(L"Type string too long");
+        }
+        if (_read(exefile, RecBuf + sizeof(unsigned short), subsection_length) != subsection_length) {
+            Fatal(L"Types subsection wrong length");
+        }
+        if (fRaw) {
+            if (subsection_length != 0xfffffffe) {
+                for (int i = 0; i < subsection_length + 2; i += 2) {
+                    StdOutPrintf(L"  %02x  %02x", RecBuf[i], RecBuf[i + 1]);
+                }
+            }
+            StdOutPutc(L'\n');
+        }
+        DumpTypRecC7(ti, subsection_length, RecBuf + sizeof(unsigned short), NULL, NULL);
+        if (subsection_length + sizeof(unsigned short) >= max_type_size) {
+            max_type_size = subsection_length + 2;
+        }
+        ti = max_type_size;
+    }
+    StdOutPrintf(L"Max Type Size = %d", max_type_size);
+    free(buffer);
+}
 
 void DumpFileInd()
 {
@@ -1600,14 +1705,20 @@ void DumpOld(const wchar_t *szFilename, DWORD foCv, DWORD, DWORD foOmapTo, DWORD
 
 #include "ecoff.h"
 
-DWORD GetOffSection(IMAGE_FILE_HEADER const& hdr) {
+template <typename T>
+DWORD GetOffSection(T const& hdr);
+
+template<>
+DWORD GetOffSection<IMAGE_FILE_HEADER>(IMAGE_FILE_HEADER const& hdr) {
     return sizeof(hdr) + hdr.SizeOfOptionalHeader;
 }
 
-
-DWORD GetOffSection(IMAGE_FILE_HEADER_EX const& hdr) {
+template<>
+DWORD GetOffSection<IMAGE_FILE_HEADER_EX>(IMAGE_FILE_HEADER_EX const& hdr) {
     return sizeof(hdr);
 }
+
+void DumpObjFileSections(DWORD offSection, DWORD numberOfSections);
 
 template<typename IMAGE_FILE_HEADER_T>
 void DumpObjFile()

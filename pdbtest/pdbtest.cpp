@@ -2,13 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <vcbudefs.h> // From \langapi\include
+//#include <vcbudefs.h> // From \langapi\include
 #include <pdb.h>
 #include <cvinfo.h>
-#include <cvr.h>
+//#include <cvr.h>
 
 #define FALSE 0
 #define TRUE  1
+
+typedef BYTE *PB;
 
 int CbNumLeaf (void *pleaf, TI ti);
 BOOL FUDTInAnyMod(PB pbName);
@@ -22,7 +24,7 @@ int Errors=0;
 GSI *pgsi;
 TPI *ptpi;
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	if (argc < 2 )
 	{

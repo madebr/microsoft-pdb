@@ -80,7 +80,7 @@ public:
     }
     BOOL save(Buffer* pbuf) const {
         CB cb = Size();
-        return pbuf->Append((PB)&cb, sizeof cb) &&
+        return pbuf->Append((PB)&cb, sizeof(cb)) &&
                (Size() == 0 || pbuf->Append(Start(), Size()));
     }
 
@@ -316,19 +316,19 @@ inline BOOL Buffer::AppendFmt(SZ_CONST szFmt, ...)
 			return TRUE;
 		case 'b': {
 			BYTE b = va_arg(args, BYTE);
-			if (!Append(&b, sizeof b, 0))
+			if (!Append(&b, sizeof(b), 0))
 				goto fail;
 			break;
 		}
 		case 's': {
 			USHORT us = va_arg(args, USHORT);
-			if (!Append((PB)&us, sizeof us, 0))
+			if (!Append((PB)&us, sizeof(us), 0))
 				goto fail;
 			break;
 		}
 		case 'l': {
 			ULONG ul = va_arg(args, ULONG);
-			if (!Append((PB)&ul, sizeof ul, 0))
+			if (!Append((PB)&ul, sizeof(ul), 0))
 				goto fail;
 			break;
 		}

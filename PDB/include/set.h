@@ -41,7 +41,7 @@ public:
 	void swap(Set& s);
 	CB	 cbSave() const;
 	unsigned count() const;
-    BOOL xor(Set<D, H> & setDst, const Set<D, H> & setSrc) const;
+    BOOL exor(Set<D, H> & setDst, const Set<D, H> & setSrc) const;
 
 private:
 	Array<D> rgd;
@@ -375,7 +375,7 @@ BOOL Set<D,H>::grow() {
 // Perform an one-way XOR on two sets, things that are in me
 // but not the given set.
 template <class D, class H>
-BOOL Set<D,H>::xor(Set<D,H> & setDst, const Set<D,H> & setSrc) const {
+BOOL Set<D,H>::exor(Set<D,H> & setDst, const Set<D,H> & setSrc) const {
     EnumSet<D,H>    e(self);
     while (e.next()) {
         D   d;

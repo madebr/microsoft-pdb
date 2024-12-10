@@ -1,5 +1,6 @@
 #include "pdbimpl.h"
 #include "dbiimpl.h"
+#include "symtypeutils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -54,7 +55,7 @@ void hexDump(const char * szTitle, PB pb, CB cb)
 
 // we rely upon the fact that these two structures, while
 // different, actually have the same size.
-cassert(sizeof TI_OFF_16t == sizeof TI_OFF);
+cassert(sizeof(TI_OFF_16t) == sizeof(TI_OFF));
 cassert(offsetof(TI_OFF_16t,ti) == offsetof(TI_OFF,ti));
 cassert(offsetof(TI_OFF_16t,off) == offsetof(TI_OFF,off));
 
@@ -113,7 +114,7 @@ TPI1::TPI1(MSF* pmsf_, PDB1* ppdb1_, SN sn_) {
     fInitResult = FALSE;
     cbMapHashCommit = 0;
     fReplaceHashStream = FALSE;
-    cbHdr = sizeof HDR;
+    cbHdr = sizeof(HDR);
     f16bitPool = FALSE;
     pwti = 0;
     pnamemap = NULL;
@@ -234,7 +235,7 @@ BOOL TPI1::fOpen(SZ_CONST szMode) {
 
         // Read the header
 
-        CB cbHdrT = sizeof hdr;
+        CB cbHdrT = sizeof(hdr);
 
         if (!pmsf->ReadStream(m_sn, 0, &hdr, &cbHdrT) || (cbHdrT < cbHdrMin)) {
             ppdb1->setReadError();
@@ -277,7 +278,7 @@ BOOL TPI1::fLoad() {
     dassert(pmsf);
 
     // try to read in our current header size; may fail to read in that much...
-    CB cbHdrT = sizeof hdr;
+    CB cbHdrT = sizeof(hdr);
     if (!(pmsf->ReadStream(m_sn, 0, &hdr, &cbHdrT) && cbHdrT >= cbHdrMin) ) {
         ppdb1->setReadError();
         return FALSE;
@@ -311,7 +312,7 @@ BOOL TPI1::fLoad() {
                 }
             }
             hdr.tpihash.offcbTiOff.cb = cbHashStream - cbHashValues();
-            cbHdr = sizeof HDR_VC50Interim;
+            cbHdr = sizeof(HDR_VC50Interim);
         }
         else {
             ppdb1->setLastError(EC_FORMAT);
@@ -322,7 +323,7 @@ BOOL TPI1::fLoad() {
         // have to convert the records from 16 to 32 bits and normalize
         // the header
         f16bitPool = TRUE;
-        cbHdr = sizeof HDR_16t;
+        cbHdr = sizeof(HDR_16t);
         HDR_16t hdrT = *(HDR_16t*)&hdr;
         hdr = hdrT;
         // fix up the one field that the hdr copy ctor cannot handle
@@ -369,10 +370,10 @@ BOOL TPI1::fLoad() {
             // now we need to fix our header so that we are a new version
             // and look like we need to write out all the records.
             hdr.cbGprec = 0;
-            hdr.cbHdr = sizeof hdr;
-            cbHdr = sizeof hdr;
+            hdr.cbHdr = sizeof(hdr);
+            cbHdr = sizeof(hdr);
             cbClean = 0;
-            if (!(fRet = pmsf->ReplaceStream(m_sn, &hdr, sizeof hdr))   )
+            if (!(fRet = pmsf->ReplaceStream(m_sn, &hdr, sizeof(hdr)))   )
                 ppdb1->setWriteError();
         }
         return fRet;
@@ -397,7 +398,7 @@ BOOL TPI1::fCreate() {
     dassert(pmsf);
     hdr = hdrNew;
     assert(cbGpRec() == 0);
-    if (!pmsf->ReplaceStream(m_sn, &hdr, sizeof hdr)) {
+    if (!pmsf->ReplaceStream(m_sn, &hdr, sizeof(hdr))) {
         ppdb1->setWriteError();
         return FALSE;
     }
@@ -712,7 +713,7 @@ BOOL TPI1::fRehashV40ToPchnMap()
     if (!fWrite)
         return FALSE;
 
-    if (!bufMapHash.SetInitAlloc((tiMac() - tiMin()) * sizeof (HASH))) {
+    if (!bufMapHash.SetInitAlloc((tiMac() - tiMin()) * sizeof(HASH))) {
         ppdb1->setOOMError();
         return FALSE;
     }
@@ -728,7 +729,7 @@ BOOL TPI1::fRehashV40ToPchnMap()
         PCHN pchn = new (poolChn) CHN(*ppchnHead, ti);
         *ppchnHead = pchn;
         // store new hash value - we will use this to update the hash stream later
-        verify (bufMapHash.Append((PB) &hash, sizeof (HASH)));
+        verify (bufMapHash.Append((PB) &hash, sizeof(HASH)));
     }
 
     fReplaceHashStream = TRUE;
@@ -799,10 +800,10 @@ BOOL TPI1::fLoadTiOff () {
     CB  cb = cbTiOff();
 
     tiCleanMac = tiMac();
-    cTiOff = cb / sizeof TI_OFF;
+    cTiOff = cb / sizeof(TI_OFF);
 
-    assert((CB)(cTiOff * sizeof TI_OFF) == cb);
-    if ((CB)(cTiOff * sizeof TI_OFF) != cb) {
+    assert((CB)(cTiOff * sizeof(TI_OFF)) == cb);
+    if ((CB)(cTiOff * sizeof(TI_OFF)) != cb) {
         ppdb1->setCorruptError();
         return FALSE;
     }
@@ -1045,13 +1046,13 @@ BOOL TPI1::AddNewTypeRecord(const PB pb, TI *pti)
         PREFAST_SUPPRESS(22006, "We trancate this on purpose");
         HASH    hashOld = static_cast<HASH>(hash);
 
-        if (!bufMapHash.Append((PB) &hashOld, sizeof (HASH))) {
+        if (!bufMapHash.Append((PB) &hashOld, sizeof(HASH))) {
             ppdb1->setOOMError();
             return FALSE;
         }
     }
     else {
-        if (!bufMapHash.Append((PB) &hash, sizeof (LHASH))) {
+        if (!bufMapHash.Append((PB) &hash, sizeof(LHASH))) {
             ppdb1->setOOMError();
             return FALSE;
         }
@@ -1336,7 +1337,7 @@ BOOL TPI1::RecordTiOff (TI ti, OFF off) {
     if (!tioffLast.ti || (tioffLast.off / _8K) < (off / _8K)) {
 
         tioffLast = TI_OFF(ti, off);
-        if (!bufTiOff.Append((PB)&tioffLast, sizeof TI_OFF)) {
+        if (!bufTiOff.Append((PB)&tioffLast, sizeof(TI_OFF))) {
             ppdb1->setOOMError();
             return FALSE;
         }
@@ -1767,7 +1768,7 @@ BOOL TPI1::fCommit()
 
 
     // write new header
-    if (!pmsf->WriteStream(m_sn, 0, &hdr, sizeof hdr)){
+    if (!pmsf->WriteStream(m_sn, 0, &hdr, sizeof(hdr))){
         ppdb1->setWriteError();
         return FALSE;
         }

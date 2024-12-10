@@ -9,11 +9,14 @@
 ***********************************************************************/
 
 #include "cvdump.h"
+#include "pdbtypdefs.h"
+
+#include "no_sdl.h"
 
 #define STRICT
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
-#include "_winnt2.h"
+//#include "_winnt2.h"
 
 #ifndef IMAGE_FILE_MACHINE_POWERPCBE
 #define IMAGE_FILE_MACHINE_POWERPCBE         0x01F2  // IBM PowerPC Big-Endian
@@ -39,7 +42,7 @@ bool fUtf8Symbols;
 #define precondition    dassert
 #define postcondition   dassert
 
-#include "map_t.h"
+//#include "map_t.h"
 
 DWORD dwMachine;
 extern WORD CVDumpMachineType;
@@ -122,10 +125,12 @@ public:
     }
 };
 
+#if 0
 typedef HashClass<CWsz,hcCast>      HcWsz;
 typedef Map<CWsz, BYTE, HcWsz>      FileMap;
 typedef EnumMap<CWsz, BYTE, HcWsz>  EnumFileMap;
 typedef Array<CWsz>                 RgCWsz;
+#endif
 
 void DumpGSI(GSI *pgsi)
 {
@@ -2093,20 +2098,20 @@ void DumpPdbPdata(DBI *pdbi)
     if ((cb = pdbgPdata->QuerySize()) > 0) {
         DbgRvaVaBlob drvbPdata;
 
-        if (pdbgPdata->QueryNext(sizeof drvbPdata, &drvbPdata)) {
-            DWORD cbImgFE = sizeof IMAGE_FUNCTION_ENTRY;
+        if (pdbgPdata->QueryNext(sizeof(drvbPdata), &drvbPdata)) {
+            DWORD cbImgFE = sizeof(IMAGE_FUNCTION_ENTRY);
 
             switch (dwMachine) {
                 case IMAGE_FILE_MACHINE_IA64:
                     szMachine = L"IA64";
                     szPdataHdr = L"         RVABegin  RVAEnd    RVAUnwindInfo\n";
-                    cbImgFE = sizeof IMAGE_FUNCTION_ENTRY;
+                    cbImgFE = sizeof(IMAGE_FUNCTION_ENTRY);
                     break;
 
                 case IMAGE_FILE_MACHINE_AMD64:
                     szMachine = L"x64";
                     szPdataHdr = L"         RVABegin  RVAEnd    RVAUnwindInfo\n";
-                    cbImgFE = sizeof IMAGE_FUNCTION_ENTRY;
+                    cbImgFE = sizeof(IMAGE_FUNCTION_ENTRY);
                     break;
             };
 
@@ -2115,7 +2120,7 @@ void DumpPdbPdata(DBI *pdbi)
         
             if (fXdata && 
                 FOpenDbg(pdbi, dbgtypeXdata, L"dbgtypeXdata", &pdbgXdata) &&
-                pdbgXdata->QueryNext(sizeof drvbXdata, &drvbXdata))
+                pdbgXdata->QueryNext(sizeof(drvbXdata), &drvbXdata))
             {
                 pdbgXdata->Skip(drvbXdata.cbHdr);
                 if (drvbXdata.cbData) {

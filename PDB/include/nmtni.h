@@ -16,7 +16,8 @@
 #include "misc.h"
 #endif
 
-#include "util_misc.h"
+#include "cvr.h"
+//#include "util_misc.h"
 
 #ifdef PDB_MT
 #include "mts.h"
@@ -87,7 +88,7 @@ public:
             return FALSE;
         traceOnly(CB cbMap = pbuf->Size() - cb0);
 
-        if (!pbuf->Append((PB)&niMac, sizeof niMac))
+        if (!pbuf->Append((PB)&niMac, sizeof(niMac)))
             return FALSE;
 
         trace((trSave, "NMTNI::save() cbBuf=%d cbMap=%d\n", buf.Size(), cbMap));

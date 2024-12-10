@@ -58,7 +58,7 @@ const symfcn SymFcnC6[] =
     { S_CHGMODEL,   C6ChangeModelSym    },
 };
 
-#define SYMCNT (sizeof SymFcnC6 / sizeof (SymFcnC6[0]))
+#define SYMCNT (sizeof(SymFcnC6) / sizeof(SymFcnC6[0]))
 
 
 /**
@@ -93,7 +93,7 @@ void DumpSym()
                 case CV_SIGNATURE_C7:
                 case CV_SIGNATURE_C11:
                     // Dump C7 debug info
-                    cbSym -= sizeof (DWORD);    // Subtract size of signature
+                    cbSym -= sizeof(DWORD);    // Subtract size of signature
                     DumpModSymC7 (cbSym, sizeof(DWORD));
                     break;
 

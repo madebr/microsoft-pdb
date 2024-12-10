@@ -7,6 +7,7 @@
 #include "cvhelper.h"
 #include "critsec.h"
 #include "output.h"
+#include "symtypeutils.h"
 
 #include <io.h>
 #include <stdio.h>
@@ -14,7 +15,7 @@
 #include <search.h>
 #include <malloc.h>
 #include "verstamp.h"
-#include "util_misc.h"
+//#include "util_misc.h"
 
 static inline SIG70 SIG70FromTSRecord(PTYPE pts)
 {
@@ -233,7 +234,7 @@ inline BOOL convertMODIFromSTtoSZ(Buffer &bufIn)
 
         // Copy all non string data
         PB pbMODIStart;
-        if (!bufIn.Append(pb, sizeof MODI, &pbMODIStart)) 
+        if (!bufIn.Append(pb, sizeof(MODI), &pbMODIStart))
             return FALSE;
 
         expect(fAlignNative(pbMODIStart));
@@ -516,7 +517,7 @@ BOOL DBI1::fInit(BOOL fCreate)
                 pmodi->fWritten = FALSE;
                 pmodi->ifileMac = 0;
                 pmodi->mpifileichFile = 0;
-                if (!bufRgpmodi.Append((PB)&pmodi, sizeof pmodi)) {
+                if (!bufRgpmodi.Append((PB)&pmodi, sizeof(pmodi))) {
                     ppdb1->setOOMError();
                     return FALSE;
                 }
@@ -1172,7 +1173,7 @@ BOOL DBI1::fSave()
     dbihdr.SetPdbVersion(rmj, rmm, rup, rbld);
     SetStripped(false);
 
-    if (!pmsf->ReplaceStream(snDbi, &dbihdr, sizeof (dbihdr)) ||
+    if (!pmsf->ReplaceStream(snDbi, &dbihdr, sizeof(dbihdr)) ||
         !fWriteModi(bufGpmodi) || 
         !pmsf->AppendStream(snDbi, &versionSC, sizeof(DWORD)) ||
         !pmsf->AppendStream(snDbi, bufSC.Start(), dbihdr.cbSC-sizeof(DWORD)) ||
@@ -2293,12 +2294,13 @@ BOOL DBI1::fOpenTmts(const wchar_t* wszName, const SIG70& sig70, AGE age, UTFSZ_
 
     *pptm = 0; // 0 means use 'to' PDB
 
+    TPI * pipi = NULL;
     TPI * ptpi = GetTpi();
     if (ptpi == NULL) {
         goto errorOut;
     }
 
-    TPI * pipi = GetIpi();
+    pipi = GetIpi();
     if (pipi == NULL) {
         // Do nothing.  Old versioned PDB doesn't have ID stream.
     }
@@ -2975,7 +2977,7 @@ bool DBI1::SaveFrameData()
         size_t iFrames = 0;
         size_t cFrames = m_rgFrameData.size();
         if (m_rgrvaRemovals.size() > 0) {
-            qsort(m_rgrvaRemovals.pBase(), m_rgrvaRemovals.size(), sizeof MemBlock, (int (*)(const void*, const void*)) blkCompare);
+            qsort(m_rgrvaRemovals.pBase(), m_rgrvaRemovals.size(), sizeof(MemBlock), (int (*)(const void*, const void*)) blkCompare);
             size_t cRemovals = m_rgrvaRemovals.size();
             size_t iRemovals = 0;
 
@@ -2992,7 +2994,7 @@ bool DBI1::SaveFrameData()
                 }
             }
 
-            qsort(m_rgFrameData.pBase(), m_rgFrameData.size(), sizeof FRAMEDATA, (int (*)(const void*, const void*)) frameCompare);
+            qsort(m_rgFrameData.pBase(), m_rgFrameData.size(), sizeof(FRAMEDATA), (int (*)(const void*, const void*)) frameCompare);
             for (iFrames = 0; iFrames < cFrames && m_rgFrameData[iFrames].ulRvaStart == 0; ++iFrames)
                 ;
         }
@@ -3509,7 +3511,7 @@ void DBI1::DumpSecMap()
     StdOutPrintf(L"Section Map cSeg = 0x%4.4x, cSegLog = 0x%4.4x\n", phdr->cSeg, phdr->cSegLog);
     StdOutPrintf(L"flags\tovl\tgroup\tframe\tsegname\tclass\toffset\t\tcbseg\n");
 
-    for (OMFSegMapDesc* pDesc =(OMFSegMapDesc*)(bufSecMap.Start() + sizeof (OMFSegMap));
+    for (OMFSegMapDesc* pDesc =(OMFSegMapDesc*)(bufSecMap.Start() + sizeof(OMFSegMap));
         (PB) pDesc < bufSecMap.End();
         pDesc++) {
         StdOutPrintf(L"0x%4.4x\t0x%4.4x\t0x%4.4x\t0x%4.4x\t0x%4.4x\t0x%4.4x\t0x%8.8x\t0x%8.8x\n",
@@ -4076,7 +4078,7 @@ PLinkInfo DBI1::GetUTF8LinkInfo(PLinkInfo pli)
     PLinkInfo pliNew = (PLinkInfo)pb;
     
     pliNew->ver      = pli->ver;
-    pliNew->offszCwd = sizeof LinkInfo;
+    pliNew->offszCwd = sizeof(LinkInfo);
 
     SZ szCwd = GetSZUTF8FromSZMBCS(pli->SzCwd());
     if (szCwd != NULL) {
@@ -4322,7 +4324,7 @@ BOOL DBI1::OpenModW(const wchar_t* wszModule, const wchar_t* wszObjFile, OUT Mod
             return FALSE;
 
         MODI* pmodi = new (bufGpmodi, utfszModule, utfszObjFile) MODI(utfszModule, utfszObjFile);
-        if (!pmodi || !bufRgpmodi.Append((PB)&pmodi, sizeof pmodi)) {
+        if (!pmodi || !bufRgpmodi.Append((PB)&pmodi, sizeof(pmodi))) {
             ppdb1->setOOMError();
             return FALSE;
         }

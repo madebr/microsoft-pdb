@@ -45,14 +45,14 @@ struct BLK { // block in an allocation pool
     CB cb() {
         return CB(pFree - buf); // REVIEW:WIN64 CAST
     }
+
+    inline void* __cdecl operator new(size_t size, blkpool_t cb) {
+        return new char[size + static_cast<size_t>(cb)];
+    }
 };
 
 inline size_t cbRoundUp(size_t cb, size_t cbMult) {
     return (cb + cbMult-1) & ~(cbMult-1);
-}
-
-inline void* __cdecl operator new(size_t size, blkpool_t cb) {
-    return new char[size + static_cast<size_t>(cb)];
 }
 
 template <size_t cbAlignVal>
@@ -138,6 +138,7 @@ private:
 typedef POOL<4>             POOL_Align4;    // for things we have to align to 4.
 typedef POOL<sizeof(void*)> POOL_AlignNative;   // for things we align natively (ptrs).
 
+#if 1
 template <size_t cbAlignVal>
 inline void * __cdecl operator new(size_t size, POOL<cbAlignVal> & pool) {
     return pool.alloc(size);
@@ -146,5 +147,6 @@ template <size_t cbAlignVal>
 inline void * __cdecl operator new[](size_t size, POOL<cbAlignVal> & pool) {
     return pool.alloc(size);
 }
+#endif
 
 #endif // !__POOL_INCLUDED__

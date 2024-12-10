@@ -31,10 +31,12 @@
  */
 
 #ifndef _VC_VER_INC
-#include "vcver.h"
+//#include "vcver.h"
 #endif
 
 #pragma once
+
+#include "no_sdl.h"
 
 #include "cvconst.h"
 
@@ -1140,8 +1142,8 @@ typedef struct CV_prop_t {
 //  class field attribute
 
 typedef struct CV_fldattr_t {
-    unsigned short  access      :2;     // access protection CV_access_t
-    unsigned short  mprop       :3;     // method properties CV_methodprop_t
+    unsigned short  access      :2;     // access protection CV_access_e
+    unsigned short  mprop       :3;     // method properties CV_methodprop_e
     unsigned short  pseudo      :1;     // compiler generated fcn and does not exist
     unsigned short  noinherit   :1;     // true if class cannot be inherited
     unsigned short  noconstruct :1;     // true if class cannot be constructed
@@ -3373,7 +3375,7 @@ typedef struct ENVBLOCKSYM {
     unsigned short  reclen;     // Record length
     unsigned short  rectyp;     // S_ENVBLOCK
     struct {
-        unsigned char  rev              : 1;    // reserved
+        unsigned char  fEC              : 1;    // edit and continue
         unsigned char  pad              : 7;    // reserved, must be 0
     } flags;
     unsigned char   rgsz[1];    // Sequence of zero-terminated strings

@@ -15,6 +15,8 @@
 
 #include <stdlib.h>
 
+#include "no_sdl.h"
+
 class CCanonFile {
     public:
 
